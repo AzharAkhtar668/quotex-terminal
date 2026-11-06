@@ -20,7 +20,6 @@
         .card { background: #0b0f17; border: 1px solid #1e293b; padding: 0.75rem; border-radius: 0.75rem; }
         label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; font-weight: 700; display: block; margin-bottom: 0.375rem; }
         select, input { width: 100%; background: #030609; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.75rem; color: #f1f5f9; font-weight: 700; outline: none; }
-        .btn { background: linear-gradient(to right, #f59e0b, #059669); color: #020617; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; padding: 0.875rem; border-radius: 0.75rem; border: none; cursor: pointer; text-align: center; width: 100%; }
         .btn-sm { padding: 4px 8px; font-size: 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; background: #3b82f6; color: #fff; }
         .tf-btn { background: #030609; border: 1px solid #b45309; color: #fcd34d; font-weight: 900; font-size: 0.75rem; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; text-align: center; }
         .tf-btn.active { background: rgba(8, 51, 68, 0.6); border-color: rgba(6, 182, 212, 0.5); color: #67e8f9; }
@@ -28,8 +27,6 @@
         canvas { display: block; width: 100%; height: 100%; }
         .signal-card { background: #0b0f17; border: 1px solid #1e293b; padding: 1rem; border-radius: 1rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; }
         .signal-display { width: 100%; padding: 0.75rem 0; text-align: center; border-radius: 0.75rem; background: #030609; color: #f59e0b; font-weight: 900; letter-spacing: 0.1em; font-size: 0.875rem; border: 1px solid rgba(69, 26, 3, 0.6); text-transform: uppercase; }
-        .gate-modal { position: fixed; inset: 0; background: #030609; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem; }
-        .hidden { display: none !important; }
         table { width: 100%; text-align: left; font-size: 11px; font-family: monospace; border-collapse: collapse; }
         th, td { padding: 0.5rem; border-bottom: 1px solid rgba(30, 41, 59, 0.4); }
         th { color: #f59e0b; font-size: 9px; text-transform: uppercase; }
@@ -40,21 +37,8 @@
 </head>
 <body>
 
-    <!-- License Gate -->
-    <div id="license-gate" class="gate-modal">
-        <div style="width: 100%; max-width: 28rem; background: #0b0f17; border: 1px solid #1e293b; border-radius: 1rem; padding: 1.5rem; text-align: center;">
-            <h2 class="title-text" style="font-size: 1.25rem; margin-bottom: 0.5rem;">QUOTEX TRADING TERMINAL</h2>
-            <p style="font-size: 12px; color: #fbbf24; margin-bottom: 1.5rem; font-family: monospace;">Advanced Risk Management v3.0</p>
-            <div style="display: flex; flex-direction: column; gap: 1rem;">
-                <input type="text" id="license-input" placeholder="LIFETIME-LO8-0DFG-PKL5-34NF" style="text-align: center; text-transform: uppercase; letter-spacing: 0.1em; font-family: monospace;">
-                <p id="license-error" style="color: #ef4444; font-size: 12px; font-weight: 700;" class="hidden">❌ INVALID LICENSE KEY</p>
-                <button onclick="validateLicenseKey()" class="btn">Activate Core Terminal</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Dashboard -->
-    <div id="app-dashboard" class="app-container hidden">
+    <!-- Main Dashboard (Directly Open) -->
+    <div id="app-dashboard" class="app-container">
         <header>
             <div>
                 <h1 class="title-text">QUOTEX TERMINAL v3.0</h1>
@@ -110,7 +94,7 @@
                 <label style="color: #34d399;">💰 CAPITAL & SAFE STAKE CALCULATOR</label>
                 <div class="grid-3" style="align-items: center;">
                     <div>
-                        <span style="font-size: 9px; color: #94a3b8;">Balance (\$):</span>
+                        <span style="font-size: 9px; color: #94a3b8;">Balance ($):</span>
                         <input type="number" id="capital-bal" value="100" oninput="calculateStake()">
                     </div>
                     <div>
@@ -119,7 +103,7 @@
                     </div>
                     <div style="text-align: center; background: #030609; padding: 6px; border-radius: 6px; border: 1px solid #1e293b;">
                         <span style="font-size: 9px; color: #fbbf24; display: block;">Safe Stake:</span>
-                        <span id="safe-stake-val" style="font-size: 12px; font-weight: 900; color: #34d399;">\$2.00</span>
+                        <span id="safe-stake-val" style="font-size: 12px; font-weight: 900; color: #34d399;">$2.00</span>
                     </div>
                 </div>
             </div>
@@ -134,4 +118,324 @@
                         <option value="R_75">Volatility 75</option>
                     </select>
                 </div>
-                <div class="card" style="display:
+                <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+                    <label>Market State</label>
+                    <div style="display: flex; align-items: center; gap: 0.5rem; background: #030609; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #1e293b;">
+                        <span id="trend-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #10b981;"></span>
+                        <span id="trend-text" style="font-size: 12px; font-family: monospace; font-weight: 700; color: #34d399;">BULLISH FLOW</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="border-color: rgba(6, 182, 212, 0.4);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.375rem;">
+                    <label style="color: #22d3ee;">⏱ TIMEFRAME</label>
+                    <span id="tf-badge" class="badge" style="color: #67e8f9;">1M</span>
+                </div>
+                <div class="grid-4">
+                    <button onclick="changeTimeframe(60,'1M')" data-tf="60" class="tf-btn active">1m</button>
+                    <button onclick="changeTimeframe(300,'5M')" data-tf="300" class="tf-btn">5m</button>
+                    <button onclick="changeTimeframe(900,'15M')" data-tf="900" class="tf-btn">15m</button>
+                    <button onclick="changeTimeframe(1800,'30M')" data-tf="1800" class="tf-btn">30m</button>
+                </div>
+            </div>
+
+            <div class="chart-frame-container" id="chart-container">
+                <canvas id="live-crypto-canvas"></canvas>
+            </div>
+
+            <div class="signal-card">
+                <span style="font-size: 10px; font-weight: 700; color: #fbbf24; letter-spacing: 0.1em; margin-bottom: 0.5rem;">ENGINE STATUS</span>
+                <div id="signal-display" class="signal-display">AI SCANNING CANDLE... READY</div>
+            </div>
+
+            <div class="grid-4" style="font-family: monospace; text-align: center;">
+                <div class="card"><span style="color: #60a5fa; display: block; font-size: 9px;">Signals</span><span id="stat-total" style="font-weight: 900; color: #60a5fa;">0</span></div>
+                <div class="card"><span style="color: #34d399; display: block; font-size: 9px;">Wins</span><span id="stat-wins" style="font-weight: 900; color: #34d399;">0</span></div>
+                <div class="card"><span style="color: #f87171; display: block; font-size: 9px;">Losses</span><span id="stat-losses" style="font-weight: 900; color: #f87171;">0</span></div>
+                <div class="card"><span style="color: #fcd34d; display: block; font-size: 9px;">Refund</span><span id="stat-refunds" style="font-weight: 900; color: #fcd34d;">0</span></div>
+            </div>
+
+            <!-- 4. LOGS & CSV EXPORT SECTION -->
+            <div class="card" style="padding: 0; overflow: hidden;">
+                <div style="padding: 0.75rem; background: #090d14; border-bottom: 1px solid #1e293b; font-size: 10px; font-weight: 700; color: #fbbf24; display: flex; justify-content: space-between; align-items: center;">
+                    <span>Execution Logs & Backtest</span>
+                    <div>
+                        <button onclick="exportLogsCSV()" class="btn-sm" style="margin-right: 4px;">📥 Export CSV</button>
+                        <button onclick="clearAllLogs()" style="color: #f87171; border: none; background: transparent; cursor: pointer;">Clear All</button>
+                    </div>
+                </div>
+                <div style="max-height: 180px; overflow-y: auto;">
+                    <table>
+                        <thead>
+                            <tr><th>Time</th><th>Asset</th><th>Signal</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="log-rows"></tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+<script>
+    let socket = null;
+    let currentServerEpoch = Math.floor(Date.now() / 1000);
+    let currentGranularity = 60;
+    let liveCandles = [];
+    let currentSymbol = "frxEURUSD";
+    
+    // Risk & Filter States
+    let consecutiveLosses = 0;
+    let currentWins = 0;
+    let isSessionLocked = false;
+    let mtfFilterOn = true;
+    let newsFilterOn = true;
+    let logDataArray = [];
+
+    // Direct Initialization on Page Load (No License Check)
+    window.onload = function() {
+        setTimeout(() => {
+            resizeCanvas();
+            initQuotexConnection();
+            calculateStake();
+            setInterval(updateTimer, 1000);
+        }, 150);
+        window.addEventListener('resize', resizeCanvas);
+    };
+
+    function toggleFilter(type) {
+        if (type === 'mtf') {
+            mtfFilterOn = !mtfFilterOn;
+            const btn = document.getElementById('mtf-toggle');
+            btn.innerText = mtfFilterOn ? 'ON' : 'OFF';
+            btn.className = mtfFilterOn ? 'toggle-btn active' : 'toggle-btn';
+        } else if (type === 'news') {
+            newsFilterOn = !newsFilterOn;
+            const btn = document.getElementById('news-toggle');
+            btn.innerText = newsFilterOn ? 'ON' : 'OFF';
+            btn.className = newsFilterOn ? 'toggle-btn active' : 'toggle-btn';
+        }
+    }
+
+    function calculateStake() {
+        const bal = parseFloat(document.getElementById('capital-bal').value) || 0;
+        const risk = parseFloat(document.getElementById('risk-pct').value) || 0;
+        const safeStake = (bal * (risk / 100)).toFixed(2);
+        document.getElementById('safe-stake-val').innerText = `$${safeStake}`;
+    }
+
+    function changePair() {
+        currentSymbol = document.getElementById('pair-selector').value;
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ forget_all: "candles" }));
+            socket.send(JSON.stringify({
+                ticks_history: currentSymbol,
+                adjust_start_time: 1,
+                count: 50,
+                end: "latest",
+                start: 1,
+                style: "candles",
+                granularity: currentGranularity,
+                subscribe: 1
+            }));
+        }
+    }
+
+    function changeTimeframe(sec, label) {
+        currentGranularity = sec;
+        const badge = document.getElementById('tf-badge');
+        if (badge) badge.innerText = label;
+        
+        document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
+        if (event && event.target) event.target.classList.add('active');
+
+        if (socket && socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({ forget_all: "candles" }));
+            socket.send(JSON.stringify({
+                ticks_history: currentSymbol,
+                adjust_start_time: 1,
+                count: 50,
+                end: "latest",
+                start: 1,
+                style: "candles",
+                granularity: currentGranularity,
+                subscribe: 1
+            }));
+        }
+    }
+
+    function initQuotexConnection() {
+        if (socket) { try { socket.close(); } catch(e) {} }
+        socket = new WebSocket('wss://api.derivws.com/trading/v1/options/ws/public');
+        
+        socket.onopen = () => {
+            const dot = document.getElementById('status-dot');
+            if(dot) dot.style.background = '#10b981';
+            socket.send(JSON.stringify({ ping: 1 }));
+            changePair();
+        };
+        
+        socket.onmessage = (msg) => {
+            try {
+                const data = JSON.parse(msg.data);
+                if (data.msg_type === 'ping') {
+                    setTimeout(() => {
+                        if (socket && socket.readyState === WebSocket.OPEN) {
+                            socket.send(JSON.stringify({ ping: 1 }));
+                        }
+                    }, 10000);
+                }
+                if (data.msg_type === 'candles') {
+                    liveCandles = data.candles.map(c => ({
+                        open: parseFloat(c.open),
+                        high: parseFloat(c.high),
+                        low: parseFloat(c.low),
+                        close: parseFloat(c.close),
+                        epoch: parseInt(c.epoch)
+                    }));
+                    drawChart();
+                }
+                if (data.msg_type === 'ohlc') {
+                    const ohlc = data.ohlc;
+                    if (ohlc) {
+                        const newCandle = {
+                            open: parseFloat(ohlc.open),
+                            high: parseFloat(ohlc.high),
+                            low: parseFloat(ohlc.low),
+                            close: parseFloat(ohlc.close),
+                            epoch: parseInt(ohlc.open_time)
+                        };
+                        if (liveCandles.length > 0 && liveCandles[liveCandles.length - 1].epoch === newCandle.epoch) {
+                            liveCandles[liveCandles.length - 1] = newCandle;
+                        } else {
+                            liveCandles.push(newCandle);
+                            if (liveCandles.length > 60) liveCandles.shift();
+                        }
+                        drawChart();
+                    }
+                }
+            } catch(e) {}
+        };
+        
+        socket.onclose = () => {
+            const dot = document.getElementById('status-dot');
+            if(dot) dot.style.background = '#ef4444';
+            setTimeout(initQuotexConnection, 5000);
+        };
+    }
+
+    function resizeCanvas() {
+        const canvas = document.getElementById('live-crypto-canvas');
+        const container = document.getElementById('chart-container');
+        if (!container || !canvas) return;
+        
+        canvas.width = container.clientWidth || 460;
+        canvas.height = container.clientHeight || 320;
+        drawChart();
+    }
+
+    function drawChart() {
+        const canvas = document.getElementById('live-crypto-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width;
+        const height = canvas.height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        // Background Grid
+        ctx.strokeStyle = '#0e1420';
+        ctx.lineWidth = 1;
+        for (let i = 40; i < width; i += 40) {
+            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, height); ctx.stroke();
+        }
+        for (let i = 40; i < height; i += 40) {
+            ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(width, i); ctx.stroke();
+        }
+
+        if (liveCandles.length === 0) {
+            ctx.fillStyle = '#64748b';
+            ctx.font = '12px monospace';
+            ctx.textAlign = 'center';
+            ctx.fillText('LOADING LIVE CANDLE DATA...', width / 2, height / 2);
+            return;
+        }
+
+        const visibleCandles = liveCandles.slice(-35);
+        let minPrice = Infinity, maxPrice = -Infinity;
+
+        visibleCandles.forEach(c => {
+            if (c.low < minPrice) minPrice = c.low;
+            if (c.high > maxPrice) maxPrice = c.high;
+        });
+
+        const priceRange = (maxPrice - minPrice) || 0.0001;
+        const candleWidth = (width - 60) / visibleCandles.length;
+
+        visibleCandles.forEach((c, index) => {
+            const x = index * candleWidth + 20;
+            const yHigh = height - ((c.high - minPrice) / priceRange) * (height - 40) - 20;
+            const yLow = height - ((c.low - minPrice) / priceRange) * (height - 40) - 20;
+            const yOpen = height - ((c.open - minPrice) / priceRange) * (height - 40) - 20;
+            const yClose = height - ((c.close - minPrice) / priceRange) * (height - 40) - 20;
+
+            const isGreen = c.close >= c.open;
+            const color = isGreen ? '#22c55e' : '#ef4444';
+
+            // Wick
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(x + candleWidth / 2, yHigh);
+            ctx.lineTo(x + candleWidth / 2, yLow);
+            ctx.stroke();
+
+            // Body
+            ctx.fillStyle = color;
+            const bodyTop = Math.min(yOpen, yClose);
+            const bodyHeight = Math.max(Math.abs(yOpen - yClose), 2);
+            ctx.fillRect(x + 2, bodyTop, candleWidth - 4, bodyHeight);
+        });
+    }
+
+    function updateTimer() {
+        currentServerEpoch++;
+        const rem = currentGranularity - (currentServerEpoch % currentGranularity);
+        const countEl = document.getElementById('countdown');
+        if (countEl) countEl.innerText = rem + 's';
+    }
+
+    function exportLogsCSV() {
+        if (logDataArray.length === 0) {
+            alert('Export ke liye koi logs data mojood nahi hai!');
+            return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,Time,Pair,Signal,Status\n";
+        logDataArray.forEach(row => {
+            csvContent += `${row.time},${row.pair},${row.signal},${row.status}\n`;
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Quotex_Terminal_Logs_${Date.now()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function clearAllLogs() {
+        const rows = document.getElementById('log-rows');
+        if (rows) rows.innerHTML = '';
+        logDataArray = [];
+        consecutiveLosses = 0;
+        currentWins = 0;
+        isSessionLocked = false;
+        document.getElementById('session-lock-banner').classList.add('hidden');
+        ['stat-total', 'stat-wins', 'stat-losses', 'stat-refunds'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.innerText = '0';
+        });
+    }
+</script>
+</body>
+</html>
