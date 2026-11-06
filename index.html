@@ -177,11 +177,14 @@ function htfDir(){if(htf.length<30)return 0;const c=htf.map(x=>x.close),a=ema(c,
 const cvt=c=>({open:+c.open,high:+c.high,low:+c.low,close:+c.close,epoch:+c.epoch});
 const htfGran=()=>gran===60?300:gran===300?900:3600;
 const lbl=()=>gran===60?'1 min':gran===300?'5 min':'15 min';
+const SERVERS=['wss://ws.derivws.com/websockets/v3?app_id=1089','wss://ws.binaryws.com/websockets/v3?app_id=1089'];let srv=0,tries=0;
 function connect(){
   if(ws){try{ws.onclose=null;ws.close()}catch(e){}}
-  ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
-  ws.onopen=()=>{wsOpen=true;subscribe()};
-  ws.onclose=()=>{wsOpen=false;$('dot').className='dot';$('cs').textContent='Reconnecting…';setTimeout(connect,4000)};
+  $('cs').textContent='Connecting (server '+(srv+1)+')…';
+  try{ws=new WebSocket(SERVERS[srv])}catch(e){$('cs').textContent='Browser WebSocket block kar raha hai. Chrome mein file kholein.';return}
+  ws.onopen=()=>{wsOpen=true;tries=0;subscribe()};
+  ws.onclose=()=>{wsOpen=false;tries++;$('dot').className='dot';srv=(srv+1)%SERVERS.length;
+    $('cs').textContent='Connect nahi ho raha (try '+tries+'). Internet/VPN check karein.';setTimeout(connect,3000)};
   ws.onmessage=m=>{let d;try{d=JSON.parse(m.data)}catch(e){return}
     if(d.error){errMsg=d.error.message;return}
     const rid=d.echo_req&&d.echo_req.req_id;
