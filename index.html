@@ -1,182 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>QUOTEX TRADING TERMINAL v3.0 - Pro Risk Edition</title>
-    <style>
-        *, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #030609; color: #f1f5f9; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; background: #06090d; display: flex; flex-direction: column; border-left: 1px solid #0f172a; border-right: 1px solid #0f172a; }
-        header { padding: 1rem; background: #0b0f17; border-bottom: 1px solid #1e293b; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 50; }
-        .title-text { font-size: 1.125rem; font-weight: 900; background: linear-gradient(to right, #fbbf24, #fde047, #34d399); -webkit-background-clip: text; color: transparent; }
-        .sub-title { font-size: 10px; color: #fbbf24; }
-        .badge { background: #030609; padding: 2px 8px; border-radius: 4px; border: 1px solid #1e293b; font-size: 11px; font-family: monospace; }
-        .status-dot { width: 10px; height: 10px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; display: inline-block; }
-        main { flex: 1; padding: 1rem; display: flex; flex-direction: column; gap: 0.85rem; overflow-y: auto; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
-        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
-        .card { background: #0b0f17; border: 1px solid #1e293b; padding: 0.75rem; border-radius: 0.75rem; }
-        label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; color: #34d399; font-weight: 700; display: block; margin-bottom: 0.375rem; }
-        select, input { width: 100%; background: #030609; border: 1px solid #334155; border-radius: 0.5rem; padding: 0.5rem; font-size: 0.75rem; color: #f1f5f9; font-weight: 700; outline: none; }
-        .btn-sm { padding: 4px 8px; font-size: 10px; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; background: #3b82f6; color: #fff; }
-        .tf-btn { background: #030609; border: 1px solid #b45309; color: #fcd34d; font-weight: 900; font-size: 0.75rem; padding: 0.5rem; border-radius: 0.5rem; cursor: pointer; text-align: center; }
-        .tf-btn.active { background: rgba(8, 51, 68, 0.6); border-color: rgba(6, 182, 212, 0.5); color: #67e8f9; }
-        .chart-frame-container { width: 100%; height: 320px; background: #080c14; position: relative; overflow: hidden; border-top: 1px solid #1e293b; border-bottom: 1px solid #1e293b; }
-        canvas { display: block; width: 100%; height: 100%; }
-        .signal-card { background: #0b0f17; border: 1px solid #1e293b; padding: 1rem; border-radius: 1rem; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 110px; }
-        .signal-display { width: 100%; padding: 0.75rem 0; text-align: center; border-radius: 0.75rem; background: #030609; color: #f59e0b; font-weight: 900; letter-spacing: 0.1em; font-size: 0.875rem; border: 1px solid rgba(69, 26, 3, 0.6); text-transform: uppercase; }
-        table { width: 100%; text-align: left; font-size: 11px; font-family: monospace; border-collapse: collapse; }
-        th, td { padding: 0.5rem; border-bottom: 1px solid rgba(30, 41, 59, 0.4); }
-        th { color: #f59e0b; font-size: 9px; text-transform: uppercase; }
-        .toggle-btn { background: #334155; color: #fff; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; border: none; font-weight: bold; }
-        .toggle-btn.active { background: #10b981; }
-        .lock-banner { background: #7f1d1d; color: #fecaca; border: 1px solid #ef4444; padding: 8px; border-radius: 8px; text-align: center; font-size: 11px; font-weight: bold; margin-bottom: 8px; }
-    </style>
-</head>
-<body>
-
-    <!-- Main Dashboard (Directly Open) -->
-    <div id="app-dashboard" class="app-container">
-        <header>
-            <div>
-                <h1 class="title-text">QUOTEX TERMINAL v3.0</h1>
-                <p class="sub-title">Pro Trader Edition</p>
-            </div>
-            <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <div class="badge">
-                    <span style="color: #22d3ee; font-weight: 800;">Sync:</span>
-                    <span id="countdown" style="color: #fbbf24; font-weight: 700;">6s</span>
-                </div>
-                <span id="status-dot" class="status-dot"></span>
-            </div>
-        </header>
-
-        <main>
-            <!-- Session Lock Status Banner -->
-            <div id="session-lock-banner" class="lock-banner hidden">
-                ⚠️ TRADING SESSION LOCKED: Risk Management Limit Reached!
-            </div>
-
-            <!-- 1. DAILY RISK & STOP-LOSS CONTROLS -->
-            <div class="card" style="border-color: rgba(239, 68, 68, 0.4);">
-                <label style="color: #f87171;">🛡️ RISK & STOP-LOSS MANAGEMENT</label>
-                <div class="grid-2" style="margin-bottom: 6px;">
-                    <div>
-                        <span style="font-size: 9px; color: #94a3b8;">Max Consecutive Losses:</span>
-                        <input type="number" id="max-losses" value="3" min="1" max="10">
-                    </div>
-                    <div>
-                        <span style="font-size: 9px; color: #94a3b8;">Daily Win Target:</span>
-                        <input type="number" id="win-target" value="5" min="1" max="20">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. MTF & NEWS FILTERS -->
-            <div class="card" style="border-color: rgba(59, 130, 246, 0.4);">
-                <label style="color: #60a5fa;">🔍 ADVANCED FILTERS (MTF & NEWS)</label>
-                <div class="grid-2">
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: #030609; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155;">
-                        <span style="font-size: 10px; color: #cbd5e1;">MTF Filter (5M/15M):</span>
-                        <button id="mtf-toggle" class="toggle-btn active" onclick="toggleFilter('mtf')">ON</button>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; background: #030609; padding: 4px 8px; border-radius: 6px; border: 1px solid #334155;">
-                        <span style="font-size: 10px; color: #cbd5e1;">News Filter (Pause):</span>
-                        <button id="news-toggle" class="toggle-btn active" onclick="toggleFilter('news')">ON</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 3. STAKE & CAPITAL MANAGEMENT CALCULATOR -->
-            <div class="card" style="border-color: rgba(52, 211, 153, 0.4);">
-                <label style="color: #34d399;">💰 CAPITAL & SAFE STAKE CALCULATOR</label>
-                <div class="grid-3" style="align-items: center;">
-                    <div>
-                        <span style="font-size: 9px; color: #94a3b8;">Balance ($):</span>
-                        <input type="number" id="capital-bal" value="100" oninput="calculateStake()">
-                    </div>
-                    <div>
-                        <span style="font-size: 9px; color: #94a3b8;">Risk per Trade (%):</span>
-                        <input type="number" id="risk-pct" value="2" oninput="calculateStake()">
-                    </div>
-                    <div style="text-align: center; background: #030609; padding: 6px; border-radius: 6px; border: 1px solid #1e293b;">
-                        <span style="font-size: 9px; color: #fbbf24; display: block;">Safe Stake:</span>
-                        <span id="safe-stake-val" style="font-size: 12px; font-weight: 900; color: #34d399;">$2.00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid-2">
-                <div class="card">
-                    <label>Select Pair</label>
-                    <select id="pair-selector" onchange="changePair()">
-                        <option value="frxEURUSD" selected>EUR / USD</option>
-                        <option value="frxGBPUSD">GBP / USD</option>
-                        <option value="cryBTCUSD">BTC / USD</option>
-                        <option value="R_75">Volatility 75</option>
-                    </select>
-                </div>
-                <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
-                    <label>Market State</label>
-                    <div style="display: flex; align-items: center; gap: 0.5rem; background: #030609; padding: 0.5rem; border-radius: 0.5rem; border: 1px solid #1e293b;">
-                        <span id="trend-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #10b981;"></span>
-                        <span id="trend-text" style="font-size: 12px; font-family: monospace; font-weight: 700; color: #34d399;">BULLISH FLOW</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="border-color: rgba(6, 182, 212, 0.4);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.375rem;">
-                    <label style="color: #22d3ee;">⏱ TIMEFRAME</label>
-                    <span id="tf-badge" class="badge" style="color: #67e8f9;">1M</span>
-                </div>
-                <div class="grid-4">
-                    <button onclick="changeTimeframe(60,'1M')" data-tf="60" class="tf-btn active">1m</button>
-                    <button onclick="changeTimeframe(300,'5M')" data-tf="300" class="tf-btn">5m</button>
-                    <button onclick="changeTimeframe(900,'15M')" data-tf="900" class="tf-btn">15m</button>
-                    <button onclick="changeTimeframe(1800,'30M')" data-tf="1800" class="tf-btn">30m</button>
-                </div>
-            </div>
-
-            <div class="chart-frame-container" id="chart-container">
-                <canvas id="live-crypto-canvas"></canvas>
-            </div>
-
-            <div class="signal-card">
-                <span style="font-size: 10px; font-weight: 700; color: #fbbf24; letter-spacing: 0.1em; margin-bottom: 0.5rem;">ENGINE STATUS</span>
-                <div id="signal-display" class="signal-display">AI SCANNING CANDLE... READY</div>
-            </div>
-
-            <div class="grid-4" style="font-family: monospace; text-align: center;">
-                <div class="card"><span style="color: #60a5fa; display: block; font-size: 9px;">Signals</span><span id="stat-total" style="font-weight: 900; color: #60a5fa;">0</span></div>
-                <div class="card"><span style="color: #34d399; display: block; font-size: 9px;">Wins</span><span id="stat-wins" style="font-weight: 900; color: #34d399;">0</span></div>
-                <div class="card"><span style="color: #f87171; display: block; font-size: 9px;">Losses</span><span id="stat-losses" style="font-weight: 900; color: #f87171;">0</span></div>
-                <div class="card"><span style="color: #fcd34d; display: block; font-size: 9px;">Refund</span><span id="stat-refunds" style="font-weight: 900; color: #fcd34d;">0</span></div>
-            </div>
-
-            <!-- 4. LOGS & CSV EXPORT SECTION -->
-            <div class="card" style="padding: 0; overflow: hidden;">
-                <div style="padding: 0.75rem; background: #090d14; border-bottom: 1px solid #1e293b; font-size: 10px; font-weight: 700; color: #fbbf24; display: flex; justify-content: space-between; align-items: center;">
-                    <span>Execution Logs & Backtest</span>
-                    <div>
-                        <button onclick="exportLogsCSV()" class="btn-sm" style="margin-right: 4px;">📥 Export CSV</button>
-                        <button onclick="clearAllLogs()" style="color: #f87171; border: none; background: transparent; cursor: pointer;">Clear All</button>
-                    </div>
-                </div>
-                <div style="max-height: 180px; overflow-y: auto;">
-                    <table>
-                        <thead>
-                            <tr><th>Time</th><th>Asset</th><th>Signal</th><th>Status</th></tr>
-                        </thead>
-                        <tbody id="log-rows"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
-    </div>
-
 <script>
     let socket = null;
     let currentServerEpoch = Math.floor(Date.now() / 1000);
@@ -184,7 +5,6 @@
     let liveCandles = [];
     let currentSymbol = "frxEURUSD";
     
-    // Risk & Filter States
     let consecutiveLosses = 0;
     let currentWins = 0;
     let isSessionLocked = false;
@@ -192,14 +12,13 @@
     let newsFilterOn = true;
     let logDataArray = [];
 
-    // Direct Initialization on Page Load (No License Check)
     window.onload = function() {
         setTimeout(() => {
             resizeCanvas();
             initQuotexConnection();
             calculateStake();
             setInterval(updateTimer, 1000);
-        }, 150);
+        }, 300);
         window.addEventListener('resize', resizeCanvas);
     };
 
@@ -266,7 +85,9 @@
 
     function initQuotexConnection() {
         if (socket) { try { socket.close(); } catch(e) {} }
-        socket = new WebSocket('wss://api.derivws.com/trading/v1/options/ws/public');
+        
+        // Secure WebSocket URL for HTTPS hosting
+        socket = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
         
         socket.onopen = () => {
             const dot = document.getElementById('status-dot');
@@ -437,5 +258,3 @@
         });
     }
 </script>
-</body>
-</html>
