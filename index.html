@@ -3,17 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Signal Bot</title>
+<title>Signal Bot Final</title>
 <style>
 :root{--bg:#0a0e14;--panel:#111823;--line:#1f2a3a;--text:#e6edf5;--mute:#7d8da1;--buy:#2dd4a7;--sell:#ff5d6c;--warn:#f5b84a;--blue:#5aa9ff}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-tap-highlight-color:transparent}
 .app{max-width:520px;margin:0 auto;padding:12px;display:flex;flex-direction:column;gap:10px}
 .top{display:flex;justify-content:space-between;align-items:center}
-h1{font-size:18px;font-weight:800;letter-spacing:.2px}
+h1{font-size:18px;font-weight:800}
 .conn{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute)}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--sell)}
-.dot.on{background:var(--buy)}
+.dot.on{background:var(--buy)}.dot.warn{background:var(--warn)}
 .row{display:flex;gap:8px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px}
 select,input{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:14px}
@@ -24,24 +24,25 @@ label{font-size:12px;color:var(--mute);display:block;margin-bottom:4px}
 .price{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
 .price b{font-size:22px;font-variant-numeric:tabular-nums}
 .price span{font-size:12px;color:var(--mute)}
-.chart{height:300px;position:relative}
+.chart{height:300px}
 canvas{width:100%;height:100%;display:block}
-.sig{text-align:center;padding:16px 10px;border-radius:12px;border:2px solid var(--line);transition:background .2s,border-color .2s}
+.sig{text-align:center;padding:16px 10px;border-radius:12px;border:2px solid var(--line);background:var(--panel)}
 .sig.buy{background:rgba(45,212,167,.12);border-color:var(--buy)}
 .sig.sell{background:rgba(255,93,108,.12);border-color:var(--sell)}
-.sig .big{font-size:30px;font-weight:900;letter-spacing:.5px}
+.sig .big{font-size:30px;font-weight:900}
 .sig.buy .big{color:var(--buy)}.sig.sell .big{color:var(--sell)}
 .sig .sub{font-size:13px;color:var(--mute);margin-top:6px}
-.sig .go{margin-top:8px;font-size:14px;font-weight:700}
+.sig .go{margin-top:8px;font-size:15px;font-weight:800;min-height:20px}
 .meter{height:10px;border-radius:6px;background:linear-gradient(90deg,var(--sell),#2a3445 50%,var(--buy));position:relative;margin-top:10px}
 .meter i{position:absolute;top:-4px;width:4px;height:18px;background:#fff;border-radius:2px;left:50%;transition:left .3s}
 .meterlbl{display:flex;justify-content:space-between;font-size:11px;color:var(--mute);margin-top:4px}
-.ind{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;text-align:center}
+.ind{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;text-align:center;margin-top:10px}
 .ind div{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:6px 2px}
 .ind small{display:block;color:var(--mute);font-size:10px}
 .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;text-align:center;font-size:11px;color:var(--mute)}
 .stats b{display:block;font-size:17px;color:var(--text)}
-.set{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.net{font-size:12px;color:var(--mute);margin-top:8px;text-align:center;line-height:1.6}
+.set{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .tog{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-top:8px}
 .tog button{padding:5px 12px;border-radius:14px;border:none;font-weight:700;background:#2a3445;color:#fff}
 .tog button.on{background:var(--buy);color:#06101c}
@@ -63,16 +64,15 @@ th{color:var(--mute);font-weight:600}
   <div class="row">
     <div style="flex:1.4"><label>Pair</label>
       <select id="pair">
-        <option value="R_75">Volatility 75 (24/7)</option>
-        <option value="R_100">Volatility 100 (24/7)</option>
-        <option value="R_50">Volatility 50 (24/7)</option>
-        <option value="cryBTCUSD">BTC / USD</option>
         <option value="frxEURUSD">EUR / USD</option>
         <option value="frxGBPUSD">GBP / USD</option>
         <option value="frxUSDJPY">USD / JPY</option>
+        <option value="cryBTCUSD">BTC / USD (24/7)</option>
+        <option value="R_75">Volatility 75 (synthetic)</option>
+        <option value="R_100">Volatility 100 (synthetic)</option>
       </select></div>
     <div style="flex:1"><label>Timeframe</label>
-      <div class="tfs" id="tfs"><button data-g="60" class="on">1m</button><button data-g="300">5m</button><button data-g="900">15m</button></div></div>
+      <div class="tfs" id="tfs"><button data-g="60">1m</button><button data-g="300" class="on">5m</button><button data-g="900">15m</button></div></div>
   </div>
 
   <div class="panel">
@@ -84,15 +84,15 @@ th{color:var(--mute);font-weight:600}
 
   <div id="sig" class="sig">
     <div class="big" id="sigTxt">WAIT</div>
-    <div class="sub" id="sigSub">Market ko scan kar raha hai. Strong signal candle band hone par aayega.</div>
+    <div class="sub" id="sigSub">Market scan ho raha hai. Signal sirf candle band hone par aata hai.</div>
     <div class="go" id="sigGo"></div>
   </div>
 
   <div class="panel">
-    <div class="hd"><span>Live strength</span><span id="scoreTxt" style="color:var(--mute);font-weight:600">0</span></div>
+    <div class="hd"><span>Live strength (abhi wali candle)</span><span id="scoreTxt" style="color:var(--mute);font-weight:600">0</span></div>
     <div class="meter"><i id="needle"></i></div>
     <div class="meterlbl"><span>Strong sell</span><span>Neutral</span><span>Strong buy</span></div>
-    <div class="ind" style="margin-top:10px">
+    <div class="ind">
       <div><small>Trend EMA</small><span id="iEma">—</span></div>
       <div><small>RSI 14</small><span id="iRsi">—</span></div>
       <div><small>MACD</small><span id="iMacd">—</span></div>
@@ -100,138 +100,166 @@ th{color:var(--mute);font-weight:600}
     </div>
   </div>
 
-  <div class="panel stats">
-    <div><b id="sT">0</b>Signals</div><div><b id="sW" class="w">0</b>Wins</div><div><b id="sL" class="l">0</b>Losses</div><div><b id="sP" class="p">0</b>Refund</div><div><b id="sR">0%</b>Win rate</div>
+  <div class="panel">
+    <div class="stats">
+      <div><b id="sT">0</b>Aaj signals</div><div><b id="sW" class="w">0</b>Wins</div><div><b id="sL" class="l">0</b>Losses</div><div><b id="sP" class="p">0</b>Refund</div><div><b id="sR">0%</b>Win rate</div>
+    </div>
+    <div class="net" id="net"></div>
   </div>
 
   <div class="panel">
     <div class="set">
-      <div><label>Strong level (50–90)</label><input type="number" id="thr" value="60" min="50" max="90"></div>
+      <div><label>Strong level (50–90)</label><input type="number" id="thr" value="70" min="50" max="90"></div>
+      <div><label>Payout % (broker)</label><input type="number" id="pay" value="85" min="50" max="100"></div>
       <div><label>Max losses in a row</label><input type="number" id="maxL" value="3" min="1" max="10"></div>
       <div><label>Daily win target</label><input type="number" id="winT" value="5" min="1" max="50"></div>
     </div>
     <div class="tog"><span>Sound + vibration alert</span><button id="snd" class="on">ON</button></div>
-    <div class="tog"><span>Higher timeframe agreement</span><button id="mtf" class="on">ON</button></div>
+    <div class="tog"><span>Bade timeframe se agreement</span><button id="mtf" class="on">ON</button></div>
   </div>
 
   <div class="panel">
     <div class="hd"><span>Signal history</span><span><button id="exp">Export CSV</button><button id="clr">Clear</button></span></div>
     <div class="logs"><table><thead><tr><th>Time</th><th>Pair</th><th>Signal</th><th>Entry</th><th>Result</th></tr></thead><tbody id="rows"></tbody></table></div>
   </div>
-  <div class="note">Yeh tool sirf technical analysis ka andaza deta hai. Koi signal 100% sahi nahi hota. Pehle demo account par test karein aur sirf utna paisa lagayein jo kho sakte hain.</div>
+  <div class="note">Yeh tool sirf technical analysis ka andaza deta hai, koi signal 100% sahi nahi hota. Pehle demo account par test karein. Volatility indices synthetic hain, un par indicators ka koi edge nahi hota.</div>
 </div>
 
 <script>
 const $=id=>document.getElementById(id);
-let ws=null,gran=60,sym='R_75',candles=[],htf=[],pending=null,logs=[],marks=[];
-let st={t:0,w:0,l:0,p:0},streak=0,locked=false,lastEpoch=0,soundOn=true,mtfOn=true,audio=null,serverOffset=0;
+const WINDOW=15,KEY='signalbot_v2';
+let ws=null,wsOpen=false,errMsg='',gran=300,sym='frxEURUSD',candles=[],htf=[],pending=null,logs=[],marks=[];
+let soundOn=true,mtfOn=true,audio=null,off=0,lastAt=0,locked=false;
+
+/* ---------- storage (history survives page reload) ---------- */
+function save(){try{localStorage.setItem(KEY,JSON.stringify(logs.slice(0,300)))}catch(e){}}
+function load(){try{logs=JSON.parse(localStorage.getItem(KEY)||'[]').filter(x=>x.result).map(x=>Object.assign(x,{time:new Date(x.time)}))}catch(e){logs=[]}}
+const isToday=t=>new Date(t).toDateString()===new Date().toDateString();
+function stats(){
+  const td=logs.filter(x=>isToday(x.time));let w=0,l=0,p=0,streak=0;
+  td.forEach(x=>{if(x.result==='win')w++;else if(x.result==='loss')l++;else if(x.result==='refund')p++});
+  for(const x of td){if(!x.result)continue;if(x.result==='loss')streak++;else break}
+  const pay=(+$('pay').value||85)/100;
+  return{t:td.length,w,l,p,streak,net:w*pay-l,pay};
+}
 
 /* ---------- indicators ---------- */
 function ema(a,n){const k=2/(n+1);let e=a[0];const o=[e];for(let i=1;i<a.length;i++){e=a[i]*k+e*(1-k);o.push(e)}return o}
 function rsi(a,n=14){if(a.length<=n)return 50;let g=0,l=0;for(let i=1;i<=n;i++){const d=a[i]-a[i-1];d>=0?g+=d:l-=d}g/=n;l/=n;
   for(let i=n+1;i<a.length;i++){const d=a[i]-a[i-1];g=(g*(n-1)+Math.max(d,0))/n;l=(l*(n-1)+Math.max(-d,0))/n}
   return l===0?100:100-100/(1+g/l)}
-function analyze(cs){
+function analyze(cs,thr){
   if(cs.length<60)return null;
   const c=cs.map(x=>x.close),e9=ema(c,9),e21=ema(c,21),e50=ema(c,50);
-  const m12=ema(c,12),m26=ema(c,26),macd=m12.map((v,i)=>v-m26[i]),sig=ema(macd,9);
-  const h=macd.map((v,i)=>v-sig[i]),n=c.length-1;
-  const r=rsi(c);
-  const sl=c.slice(-20),mean=sl.reduce((a,b)=>a+b,0)/20,sd=Math.sqrt(sl.reduce((a,b)=>a+(b-mean)**2,0)/20);
-  const up=mean+2*sd,lo=mean-2*sd,last=cs[n];
+  const m12=ema(c,12),m26=ema(c,26),macd=m12.map((v,i)=>v-m26[i]),sg=ema(macd,9);
+  const h=macd.map((v,i)=>v-sg[i]),n=c.length-1,r=rsi(c);
+  const sl=c.slice(-20),mean=sl.reduce((a,b)=>a+b,0)/20,last=cs[n];
   const body=Math.abs(last.close-last.open),avg=cs.slice(-15).reduce((a,x)=>a+Math.abs(x.close-x.open),0)/15;
+  let atr=0;for(let i=n-13;i<=n;i++)atr+=Math.max(cs[i].high-cs[i].low,Math.abs(cs[i].high-cs[i-1].close),Math.abs(cs[i].low-cs[i-1].close));atr/=14;
   let s=0;
   if(e9[n]>e21[n]&&e21[n]>e50[n])s+=30;else if(e9[n]<e21[n]&&e21[n]<e50[n])s-=30;else s+=e9[n]>e21[n]?10:-10;
   if(r>=52&&r<=72)s+=15;else if(r<=48&&r>=28)s-=15;else if(r>72)s-=8;else if(r<28)s+=8;
   if(h[n]>0)s+=h[n]>h[n-1]?20:10;else s-=h[n]<h[n-1]?20:10;
   s+=last.close>mean?10:-10;
   if(body>avg*0.8)s+=last.close>last.open?15:-15;
-  return{s,e9:e9[n],e21:e21[n],e50:e50[n],r,h:h[n],mean,up,lo,e9a:e9,e21a:e21};
+  let d=null,why='';
+  if(s>=thr)d='BUY';else if(s<=-thr)d='SELL';else why='Strength kam hai ('+s+')';
+  if(d){
+    if(Math.abs(e9[n]-e21[n])<0.25*atr){d=null;why='Market sideways hai, trend nahi'}
+    else if((d==='BUY'&&r>75)||(d==='SELL'&&r<25)){d=null;why='RSI extreme, reversal ka khatra'}
+    else if(body>2.5*avg){d=null;why='Candle bohat bari hai, chase nahi karenge'}
+  }
+  return{s,d,why,e9:e9[n],e21:e21[n],r,h:h[n],mean,e9a:e9,e21a:e21};
 }
-function htfDir(){ // trend of higher-timeframe closes
-  if(htf.length<30)return 0;const c=htf.map(x=>x.close),a=ema(c,9),b=ema(c,21),n=c.length-1;
-  return a[n]>b[n]?1:a[n]<b[n]?-1:0}
+function htfDir(){if(htf.length<30)return 0;const c=htf.map(x=>x.close),a=ema(c,9),b=ema(c,21),n=c.length-1;return a[n]>b[n]?1:a[n]<b[n]?-1:0}
 
 /* ---------- connection ---------- */
+const cvt=c=>({open:+c.open,high:+c.high,low:+c.low,close:+c.close,epoch:+c.epoch});
+const htfGran=()=>gran===60?300:gran===300?900:3600;
+const lbl=()=>gran===60?'1 min':gran===300?'5 min':'15 min';
 function connect(){
   if(ws){try{ws.onclose=null;ws.close()}catch(e){}}
   ws=new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=1089');
-  ws.onopen=()=>{$('dot').className='dot on';$('cs').textContent='Live';subscribe()};
-  ws.onclose=()=>{$('dot').className='dot';$('cs').textContent='Reconnecting…';setTimeout(connect,4000)};
+  ws.onopen=()=>{wsOpen=true;subscribe()};
+  ws.onclose=()=>{wsOpen=false;$('dot').className='dot';$('cs').textContent='Reconnecting…';setTimeout(connect,4000)};
   ws.onmessage=m=>{let d;try{d=JSON.parse(m.data)}catch(e){return}
-    if(d.error){$('cs').textContent='Error: '+d.error.message;return}
-    if(d.msg_type==='candles'&&d.echo_req&&d.echo_req.req_id===1){
-      candles=d.candles.map(cv);lastEpoch=candles.length?candles[candles.length-1].epoch:0;pending=null;marks=[];refresh();}
-    if(d.msg_type==='candles'&&d.echo_req&&d.echo_req.req_id===2){htf=d.candles.map(cv);}
-    if(d.msg_type==='ohlc'&&d.ohlc&&d.ohlc.granularity===gran){onOhlc(d.ohlc)}
+    if(d.error){errMsg=d.error.message;return}
+    const rid=d.echo_req&&d.echo_req.req_id;
+    if(d.msg_type==='candles'&&rid===1){
+      candles=d.candles.map(cvt);
+      if(pending){const i=logs.indexOf(pending);if(i>=0)logs.splice(i,1);pending=null}
+      marks=[];lastAt=Date.now();refresh();}
+    else if(d.msg_type==='candles'&&rid===2){htf=d.candles.map(cvt)}
+    else if(d.msg_type==='ohlc'&&d.ohlc){onOhlc(d.ohlc)}
   };
 }
-const cv=c=>({open:+c.open,high:+c.high,low:+c.low,close:+c.close,epoch:+c.epoch});
-function htfGran(){return gran===60?300:gran===300?900:3600}
 function subscribe(){
-  if(!ws||ws.readyState!==1)return;
+  if(!ws||ws.readyState!==1)return;errMsg='';lastAt=Date.now();
   ws.send(JSON.stringify({forget_all:'candles'}));
   ws.send(JSON.stringify({ticks_history:sym,adjust_start_time:1,count:200,end:'latest',style:'candles',granularity:gran,subscribe:1,req_id:1}));
-  ws.send(JSON.stringify({ticks_history:sym,adjust_start_time:1,count:80,end:'latest',style:'candles',granularity:htfGran(),req_id:2}));
+  ws.send(JSON.stringify({ticks_history:sym,adjust_start_time:1,count:80,end:'latest',style:'candles',granularity:htfGran(),subscribe:1,req_id:2}));
 }
 function onOhlc(o){
-  const c={open:+o.open,high:+o.high,low:+o.low,close:+o.close,epoch:+o.open_time};
-  const n=candles.length;
-  if(n&&candles[n-1].epoch===c.epoch){candles[n-1]=c}
-  else{candles.push(c);if(candles.length>300)candles.shift();onNewCandle()}
-  refresh();
+  if(o.symbol&&o.symbol!==sym)return;
+  const c={open:+o.open,high:+o.high,low:+o.low,close:+o.close,epoch:+o.open_time},g=+o.granularity;
+  if(g===gran){
+    off=+o.epoch-Math.floor(Date.now()/1000);lastAt=Date.now();
+    const n=candles.length;
+    if(n&&candles[n-1].epoch===c.epoch)candles[n-1]=c;
+    else if(!n||c.epoch>candles[n-1].epoch){candles.push(c);if(candles.length>300)candles.shift();onNewCandle()}
+    refresh();
+  }else if(g===htfGran()){
+    const n=htf.length;
+    if(n&&htf[n-1].epoch===c.epoch)htf[n-1]=c;else if(!n||c.epoch>htf[n-1].epoch){htf.push(c);if(htf.length>120)htf.shift()}
+  }
 }
 
-/* ---------- signal logic (runs when a candle closes) ---------- */
+/* ---------- signal logic (runs once per closed candle) ---------- */
 function onNewCandle(){
   const closed=candles.slice(0,-1),prev=closed[closed.length-1];
-  if(pending){ // resolve previous signal with the candle that just closed
-    const res=prev.close>pending.entry?'UP':prev.close<pending.entry?'DOWN':'EQ';
-    let r='refund';if(res!=='EQ')r=((res==='UP')===(pending.dir==='BUY'))?'win':'loss';
-    pending.result=r;pending.exit=prev.close;st[r==='win'?'w':r==='loss'?'l':'p']++;
-    streak=r==='loss'?streak+1:r==='win'?0:streak;
-    renderLogs();pending=null;checkLock();
+  if(pending){
+    if(prev&&prev.epoch===pending.epoch){
+      const r=prev.close>pending.entry?(pending.dir==='BUY'?'win':'loss'):prev.close<pending.entry?(pending.dir==='SELL'?'win':'loss'):'refund';
+      pending.result=r;pending.exit=prev.close;save();
+    }else{const i=logs.indexOf(pending);if(i>=0)logs.splice(i,1)}
+    pending=null;renderLogs();
   }
+  checkLock();
   if(locked)return;
-  const a=analyze(closed);if(!a)return;
-  const thr=+$('thr').value||60;let d=null;
-  if(a.s>=thr)d='BUY';else if(a.s<=-thr)d='SELL';
-  if(d&&mtfOn){const h=htfDir();if((d==='BUY'&&h<0)||(d==='SELL'&&h>0))d=null}
+  const a=analyze(closed,+$('thr').value||60);if(!a)return;
+  let d=a.d,why=a.why;
+  if(d&&mtfOn){const h=htfDir();if((d==='BUY'&&h<0)||(d==='SELL'&&h>0)){d=null;why='Bade timeframe ka trend ulta hai'}}
   if(d){
-    pending={time:new Date(),pair:$('pair').selectedOptions[0].text,dir:d,entry:prev.close,score:a.s,epoch:candles[candles.length-1].epoch};
-    logs.unshift(pending);st.t++;marks.push({epoch:pending.epoch,dir:d});
-    showSignal(d,a.s);alertUser(d);renderLogs();
+    pending={time:new Date(),openedAt:Date.now(),pair:$('pair').selectedOptions[0].text.replace(/ \(.*\)/,''),dir:d,entry:prev.close,score:a.s,epoch:candles[candles.length-1].epoch,expired:false};
+    logs.unshift(pending);marks.push({epoch:pending.epoch,dir:d});
+    $('sig').className='sig '+(d==='BUY'?'buy':'sell');
+    $('sigTxt').textContent=d==='BUY'?'STRONG BUY ▲':'STRONG SELL ▼';
+    $('sigSub').textContent='Strength '+Math.abs(a.s)+'/90 · expiry 1 candle ('+lbl()+')';
+    alertUser(d);renderLogs();tick();
   }else{
     $('sig').className='sig';$('sigTxt').textContent='WAIT';
-    $('sigSub').textContent='Abhi koi strong signal nahi. Agli candle ka intezar.';$('sigGo').textContent='';
+    $('sigSub').textContent=why+'. Agli candle ka intezar.';$('sigGo').textContent='';
   }
 }
-function showSignal(d,s){
-  $('sig').className='sig '+(d==='BUY'?'buy':'sell');
-  $('sigTxt').textContent=d==='BUY'?'STRONG BUY ▲':'STRONG SELL ▼';
-  $('sigSub').textContent='Strength '+Math.abs(s)+'/90 · expiry 1 candle ('+lbl()+')';
-  $('sigGo').textContent=d==='BUY'?'Ab UP / BUY trade ke liye ready':'Ab DOWN / SELL trade ke liye ready';
-}
-const lbl=()=>gran===60?'1 min':gran===300?'5 min':'15 min';
 function checkLock(){
-  const mx=+$('maxL').value||3,wt=+$('winT').value||5,b=$('lock');
-  if(streak>=mx){locked=true;b.style.display='block';b.textContent='Session locked: '+mx+' losses lagatar. Break lein.'}
-  else if(st.w>=wt){locked=true;b.style.display='block';b.textContent='Daily win target poora ho gaya. Aaj ke liye bas.'}
+  const s=stats(),mx=+$('maxL').value||3,wt=+$('winT').value||5,b=$('lock');
+  if(s.streak>=mx){locked=true;b.style.display='block';b.textContent='Session locked: '+mx+' losses lagatar. Thora break lein.'}
+  else if(s.w>=wt){locked=true;b.style.display='block';b.textContent='Aaj ka win target poora ho gaya. Aaj ke liye bas.'}
   else{locked=false;b.style.display='none'}
 }
 function alertUser(d){
   if(!soundOn)return;
-  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();
+  try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume&&audio.resume();
     const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);
-    o.frequency.value=d==='BUY'?880:440;g.gain.value=.15;o.start();o.stop(audio.currentTime+.35)}catch(e){}
+    o.frequency.value=d==='BUY'?880:440;g.gain.value=.15;o.start();o.stop(audio.currentTime+.4)}catch(e){}
   if(navigator.vibrate)navigator.vibrate([200,100,200]);
 }
 
-/* ---------- UI refresh ---------- */
+/* ---------- UI ---------- */
 function refresh(){
   const n=candles.length;if(!n)return;
   const last=candles[n-1];$('px').textContent=last.close.toFixed(last.close>1000?2:last.close>10?3:5);
-  const a=analyze(candles.slice(0,-1).concat([last]));
+  const a=analyze(candles,60);
   if(a){
     const s=Math.max(-90,Math.min(90,a.s));$('needle').style.left=(50+s/90*50)+'%';
     $('scoreTxt').textContent=(a.s>0?'+':'')+a.s;
@@ -240,40 +268,52 @@ function refresh(){
     $('iMacd').innerHTML=a.h>0?'<span class=w>Bull</span>':'<span class=l>Bear</span>';
     $('iBb').innerHTML=last.close>a.mean?'<span class=w>Upper</span>':'<span class=l>Lower</span>';
   }
-  draw(a);
-  document.querySelectorAll('.stats b')[0].textContent=st.t;
-  $('sT').textContent=st.t;$('sW').textContent=st.w;$('sL').textContent=st.l;$('sP').textContent=st.p;
-  const done=st.w+st.l;$('sR').textContent=done?Math.round(st.w/done*100)+'%':'0%';
+  draw(a);renderStats();
+}
+function renderStats(){
+  const s=stats(),done=s.w+s.l,all=logs.filter(x=>x.result==='win'||x.result==='loss'),aw=all.filter(x=>x.result==='win').length;
+  $('sT').textContent=s.t;$('sW').textContent=s.w;$('sL').textContent=s.l;$('sP').textContent=s.p;
+  $('sR').textContent=done?Math.round(s.w/done*100)+'%':'0%';
+  const be=Math.round(100/(1+s.pay));
+  $('net').innerHTML='Aaj ka net: <b class="'+(s.net>=0?'w':'l')+'">'+(s.net>=0?'+':'')+s.net.toFixed(2)+' stakes</b> · Breakeven win rate: '+be+'%<br>Ab tak: '+(all.length?Math.round(aw/all.length*100)+'% ('+all.length+' trades)':'koi trade nahi');
 }
 function renderLogs(){
-  $('rows').innerHTML=logs.slice(0,50).map(x=>{
-    const r=x.result;return '<tr><td>'+x.time.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+'</td><td>'+x.pair.replace(/ \(.*\)/,'')+'</td><td class="'+(x.dir==='BUY'?'w':'l')+'">'+x.dir+'</td><td>'+x.entry+'</td><td class="'+(r==='win'?'w':r==='loss'?'l':'p')+'">'+(r?r.toUpperCase():'…')+'</td></tr>'}).join('');
-  refresh();
+  $('rows').innerHTML=logs.slice(0,50).map(x=>{const r=x.result;
+    return '<tr><td>'+new Date(x.time).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+'</td><td>'+x.pair+'</td><td class="'+(x.dir==='BUY'?'w':'l')+'">'+x.dir+'</td><td>'+x.entry+'</td><td class="'+(r==='win'?'w':r==='loss'?'l':'p')+'">'+(r?r.toUpperCase():'…')+'</td></tr>'}).join('');
+  renderStats();
 }
 function tick(){
-  const now=Math.floor(Date.now()/1000),rem=gran-(now%gran);
-  $('cd').textContent='Candle closes in '+rem+'s';
+  const now=Math.floor(Date.now()/1000)+off,rem=gran-(now%gran);
+  $('cd').textContent='Candle closes in '+(rem>=60?Math.floor(rem/60)+'m '+rem%60+'s':rem+'s');
+  if(pending&&!pending.expired){
+    const left=WINDOW-Math.floor((Date.now()-pending.openedAt)/1000);
+    if(left>0)$('sigGo').textContent=(pending.dir==='BUY'?'UP / BUY':'DOWN / SELL')+' abhi lagayein, '+left+'s baqi';
+    else{pending.expired=true;$('sig').className='sig';$('sigTxt').textContent='ENTRY WINDOW BAND';
+      $('sigSub').textContent='Late entry mat lein. Agli candle ka intezar.';$('sigGo').textContent=''}
+  }
+  if(wsOpen){
+    const dead=candles.length&&Date.now()-lastAt>30000;
+    $('dot').className='dot '+(errMsg||dead?'warn':'on');
+    $('cs').textContent=errMsg?errMsg:dead?'Live data nahi aa raha (market band?)':'Live';
+  }
 }
 setInterval(tick,1000);
 
-/* ---------- chart ---------- */
 function draw(a){
   const cvs=$('cv'),dpr=window.devicePixelRatio||1,W=cvs.clientWidth,H=cvs.clientHeight;
   if(cvs.width!==W*dpr||cvs.height!==H*dpr){cvs.width=W*dpr;cvs.height=H*dpr}
   const x=cvs.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);x.clearRect(0,0,W,H);
   const N=45,vis=candles.slice(-N);if(!vis.length)return;
   let mn=Infinity,mx=-Infinity;vis.forEach(c=>{mn=Math.min(mn,c.low);mx=Math.max(mx,c.high)});
-  const pad=(mx-mn)*.08||1e-4;mn-=pad;mx+=pad;const R=mx-mn,pw=48,cw=(W-pw)/N;
-  const Y=p=>H-((p-mn)/R)*(H-10)-5;
-  x.strokeStyle='#1a2433';x.fillStyle='#7d8da1';x.font='10px system-ui';x.lineWidth=1;
-  for(let i=0;i<5;i++){const p=mn+R*i/4,y=Y(p);x.beginPath();x.moveTo(0,y);x.lineTo(W-pw,y);x.stroke();x.fillText(p.toFixed(p>1000?2:p>10?3:5),W-pw+4,y+3)}
-  vis.forEach((c,i)=>{const cx=i*cw+cw/2,up=c.close>=c.open,col=up?'#2dd4a7':'#ff5d6c';
+  const pad=(mx-mn)*.08||1e-4;mn-=pad;mx+=pad;const R=mx-mn,pw=52,cw=(W-pw)/N,Y=p=>H-((p-mn)/R)*(H-10)-5;
+  x.lineWidth=1;x.font='10px system-ui';
+  for(let i=0;i<5;i++){const p=mn+R*i/4,y=Y(p);x.strokeStyle='#1a2433';x.beginPath();x.moveTo(0,y);x.lineTo(W-pw,y);x.stroke();x.fillStyle='#7d8da1';x.fillText(p.toFixed(p>1000?2:p>10?3:5),W-pw+4,y+3)}
+  vis.forEach((c,i)=>{const cx=i*cw+cw/2,col=c.close>=c.open?'#2dd4a7':'#ff5d6c';
     x.strokeStyle=col;x.fillStyle=col;x.beginPath();x.moveTo(cx,Y(c.high));x.lineTo(cx,Y(c.low));x.stroke();
-    const t=Math.min(Y(c.open),Y(c.close)),h=Math.max(Math.abs(Y(c.open)-Y(c.close)),1.5);x.fillRect(cx-cw*.35,t,cw*.7,h)});
-  if(a){ // EMA lines
-    const off=candles.length-vis.length;
+    x.fillRect(cx-cw*.35,Math.min(Y(c.open),Y(c.close)),cw*.7,Math.max(Math.abs(Y(c.open)-Y(c.close)),1.5))});
+  if(a){const o=candles.length-vis.length;
     [[a.e9a,'#5aa9ff'],[a.e21a,'#f5b84a']].forEach(([arr,col])=>{x.strokeStyle=col;x.lineWidth=1.3;x.beginPath();
-      vis.forEach((c,i)=>{const v=arr[off+i];if(v===undefined)return;const px=i*cw+cw/2,py=Y(v);i?x.lineTo(px,py):x.moveTo(px,py)});x.stroke()})}
+      vis.forEach((c,i)=>{const v=arr[o+i];if(v===undefined)return;i?x.lineTo(i*cw+cw/2,Y(v)):x.moveTo(i*cw+cw/2,Y(v))});x.stroke()});x.lineWidth=1}
   marks.forEach(m=>{const i=vis.findIndex(c=>c.epoch===m.epoch);if(i<0)return;const c=vis[i],cx=i*cw+cw/2;
     x.fillStyle=m.dir==='BUY'?'#2dd4a7':'#ff5d6c';x.beginPath();
     if(m.dir==='BUY'){const y=Y(c.low)+14;x.moveTo(cx,y-9);x.lineTo(cx-6,y+3);x.lineTo(cx+6,y+3)}
@@ -283,20 +323,23 @@ function draw(a){
 }
 
 /* ---------- controls ---------- */
-$('pair').onchange=()=>{sym=$('pair').value;candles=[];htf=[];subscribe();$('sigTxt').textContent='WAIT'};
+function reset(){candles=[];htf=[];marks=[];if(pending){const i=logs.indexOf(pending);if(i>=0)logs.splice(i,1);pending=null}
+  $('sig').className='sig';$('sigTxt').textContent='WAIT';$('sigSub').textContent='Naya data load ho raha hai…';$('sigGo').textContent='';renderLogs();subscribe()}
+$('pair').onchange=()=>{sym=$('pair').value;reset()};
 $('tfs').onclick=e=>{const b=e.target.closest('button');if(!b)return;gran=+b.dataset.g;
-  document.querySelectorAll('#tfs button').forEach(x=>x.classList.toggle('on',x===b));candles=[];subscribe()};
-$('snd').onclick=function(){soundOn=!soundOn;this.textContent=soundOn?'ON':'OFF';this.classList.toggle('on',soundOn);if(soundOn&&!audio){try{audio=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}};
+  document.querySelectorAll('#tfs button').forEach(x=>x.classList.toggle('on',x===b));reset()};
+$('snd').onclick=function(){soundOn=!soundOn;this.textContent=soundOn?'ON':'OFF';this.classList.toggle('on',soundOn)};
 $('mtf').onclick=function(){mtfOn=!mtfOn;this.textContent=mtfOn?'ON':'OFF';this.classList.toggle('on',mtfOn)};
-['maxL','winT'].forEach(i=>$(i).onchange=checkLock);
-$('clr').onclick=()=>{logs=[];marks=[];st={t:0,w:0,l:0,p:0};streak=0;locked=false;pending=null;$('lock').style.display='none';renderLogs()};
+['maxL','winT','pay'].forEach(i=>$(i).onchange=()=>{checkLock();renderStats()});
+$('clr').onclick=()=>{if(!confirm('Saari history delete kar dein?'))return;logs=[];marks=[];pending=null;save();locked=false;$('lock').style.display='none';renderLogs()};
 $('exp').onclick=()=>{
   if(!logs.length){alert('Export ke liye abhi koi signal nahi hai.');return}
-  let c='Time,Pair,Signal,Entry,Exit,Result\n';
-  logs.forEach(x=>c+=[x.time.toISOString(),x.pair,x.dir,x.entry,x.exit||'',x.result||'pending'].join(',')+'\n');
+  let c='Time,Pair,Signal,Score,Entry,Exit,Result\n';
+  logs.forEach(x=>c+=[new Date(x.time).toISOString(),x.pair,x.dir,x.score,x.entry,x.exit||'',x.result||'pending'].join(',')+'\n');
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([c],{type:'text/csv'}));a.download='signals.csv';a.click()};
+document.addEventListener('pointerdown',()=>{try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();audio.resume()}catch(e){}},{once:true});
 window.addEventListener('resize',()=>refresh());
-connect();
+load();renderLogs();checkLock();connect();
 </script>
 </body>
 </html>
